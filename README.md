@@ -1,7 +1,7 @@
 # YouTube Watch Later Manager
 
 [![Chrome Web Store](https://img.shields.io/chrome-web-store/v/cipblemimaiffjenjhnplnegbembhgmc?style=for-the-badge&logo=google-chrome&logoColor=white)](https://chromewebstore.google.com/detail/youtube-watch-later-manag/cipblemimaiffjenjhnplnegbembhgmc)
-[![License](https://img.shields.io/github/license/ogadassi/WatchLater?style=for-the-badge)](LICENSE)
+[![License](https://img.shields.io/badge/license-MIT-green?style=for-the-badge)](LICENSE)
 
 A lightweight, high-performance Chrome extension that streamlines your YouTube experience by adding one-click buttons to instantly add and remove videos from your **Watch Later** playlist. No slow menus, no unnecessary clicks.
 
