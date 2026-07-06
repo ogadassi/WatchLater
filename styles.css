@@ -1,0 +1,116 @@
+.wl-custom-remove-btn {
+  background: transparent;
+  border: none;
+  cursor: pointer;
+  padding: 8px;
+  border-radius: 50%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 40px;
+  height: 40px;
+  margin-right: 8px;
+  opacity: 0.7;
+  transition: opacity 0.1s; /* removed background-color transition to make it instant */
+}
+
+/* Default color for light mode */
+.wl-custom-remove-btn svg {
+  fill: var(--yt-spec-icon-inactive, #0f0f0f);
+  width: 24px;
+  height: 24px;
+}
+
+/* Color for dark mode */
+html[dark] .wl-custom-remove-btn svg {
+  fill: var(--yt-spec-icon-inactive, #f1f1f1);
+}
+
+/* Match native YouTube hover background instantly */
+.wl-custom-remove-btn:hover {
+  background-color: var(--yt-spec-10-percent-layer, rgba(0, 0, 0, 0.1));
+}
+
+html[dark] .wl-custom-remove-btn:hover {
+  background-color: var(--yt-spec-10-percent-layer, rgba(255, 255, 255, 0.1));
+}
+
+/* Hide the button until the video row is hovered ONLY in the little playlist panel */
+ytd-playlist-panel-video-renderer:not(:hover) .wl-custom-remove-btn {
+  opacity: 0;
+  pointer-events: none;
+}
+
+.wl-custom-remove-btn:active {
+  transform: scale(0.9);
+}
+
+/* Make sure the container aligns properly */
+ytd-playlist-video-renderer #menu,
+ytd-playlist-panel-video-renderer #menu {
+  display: flex !important;
+  flex-direction: row !important;
+  align-items: center !important;
+}
+
+/* Remove margin on the panel view since space is tight, let flex handle it */
+ytd-playlist-panel-video-renderer .wl-custom-remove-btn {
+  margin-right: 0;
+  margin-left: 4px;
+}
+
+/* --- Add to Watch Later Button (matches 3-dots design) --- */
+.wl-custom-add-btn {
+  background: transparent;
+  border: none;
+  cursor: pointer;
+  padding: 8px;
+  border-radius: 50%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 40px;
+  height: 40px;
+  margin: 0;
+  opacity: 0.7;
+  pointer-events: auto;
+  transition: opacity 0.1s;
+}
+
+.wl-custom-add-btn:hover {
+  opacity: 1;
+  background-color: var(--yt-spec-10-percent-layer, rgba(0, 0, 0, 0.1));
+}
+
+html[dark] .wl-custom-add-btn:hover {
+  background-color: var(--yt-spec-10-percent-layer, rgba(255, 255, 255, 0.1));
+}
+
+.wl-custom-add-btn svg {
+  fill: var(--yt-spec-icon-inactive, #606060);
+  width: 24px;
+  height: 24px;
+}
+
+html[dark] .wl-custom-add-btn svg {
+  fill: var(--yt-spec-icon-inactive, #aaa);
+}
+
+.wl-custom-add-btn:active {
+  transform: scale(0.9);
+}
+
+/* On sidebar/compact videos, only show on hover (matches native 3-dots behavior) */
+ytd-compact-video-renderer .wl-custom-add-btn,
+ytd-video-renderer .wl-custom-add-btn,
+yt-lockup-view-model.ytLockupViewModelWrapper:not(ytd-rich-item-renderer yt-lockup-view-model) .wl-custom-add-btn {
+  opacity: 0;
+  pointer-events: none;
+}
+
+ytd-compact-video-renderer:hover .wl-custom-add-btn,
+ytd-video-renderer:hover .wl-custom-add-btn,
+yt-lockup-view-model.ytLockupViewModelWrapper:not(ytd-rich-item-renderer yt-lockup-view-model):hover .wl-custom-add-btn {
+  opacity: 0.7;
+  pointer-events: auto;
+}

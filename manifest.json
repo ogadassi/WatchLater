@@ -1,0 +1,19 @@
+{
+  "manifest_version": 3,
+  "name": "YouTube Watch Later Manager",
+  "version": "1.0",
+  "description": "Adds a 1-click remove button to the YouTube Watch Later playlist.",
+  "icons": {
+    "16": "icon16.png",
+    "48": "icon48.png",
+    "128": "icon128.png"
+  },
+  "permissions": [],
+  "content_scripts": [
+    {
+      "matches": ["*://*.youtube.com/*"],
+      "js": ["content.js"],
+      "css": ["styles.css"]
+    }
+  ]
+}
