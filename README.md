@@ -1,6 +1,6 @@
 # YouTube Watch Later Manager
 
-[![Chrome Web Store](https://img.shields.io/chrome-web-store/v/clkjhjdmipiofjbcjgkdcgnagnlhhm?style=for-the-badge&logo=google-chrome&logoColor=white)](https://chrome.google.com/webstore/detail/youtube-watch-later-manager/clkjhjdmipiofjbcjgkdcgnagnlhhm)
+[![Chrome Web Store](https://img.shields.io/chrome-web-store/v/cipblemimaiffjenjhnplnegbembhgmc?style=for-the-badge&logo=google-chrome&logoColor=white)](https://chromewebstore.google.com/detail/youtube-watch-later-manag/cipblemimaiffjenjhnplnegbembhgmc)
 [![License](https://img.shields.io/github/license/ogadassi/WatchLater?style=for-the-badge)](LICENSE)
 
 A lightweight, high-performance Chrome extension that streamlines your YouTube experience by adding one-click buttons to instantly add and remove videos from your **Watch Later** playlist. No slow menus, no unnecessary clicks.
@@ -22,7 +22,7 @@ A lightweight, high-performance Chrome extension that streamlines your YouTube e
 
 ### From Chrome Web Store (Recommended)
 Install the extension directly with automatic updates:
-👉 **[Get YouTube Watch Later Manager on Chrome Web Store](https://chrome.google.com/webstore/detail/youtube-watch-later-manager/clkjhjdmipiofjbcjgkdcgnagnlhhm)**
+👉 **[Get YouTube Watch Later Manager on Chrome Web Store](https://chromewebstore.google.com/detail/youtube-watch-later-manag/cipblemimaiffjenjhnplnegbembhgmc)**
 
 ### Installing Locally (Development)
 If you want to run the developer build or contribute:
