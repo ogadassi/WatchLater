@@ -34,9 +34,4 @@ This file contains the structured project status, completed milestones, and futu
 ---
 
 ## Project Backlog & Future Missions
-- [ ] **Playlist Choice Selection** - Add popup settings page allowing users to configure which playlist the button targets (e.g., custom playlists instead of only Watch Later).
-- [ ] **Mobile Web Support (`m.youtube.com`)** - Adapt DOM parser script and stylesheets to work on mobile browsers.
-- [ ] **Configurable Hover Rules** - Introduce options to let users toggle if buttons are always visible or show up on hover only for homepage/feed cards.
-- [ ] **MutationObserver Throttling** - Performance enhancement to throttle the DOM listener during high-volume scrolls on massive playlists.
-- [ ] **Firefox / Safari Porting** - Package and adapt the extension codebase to cross-browser compatibility standards (Manifest V3 Firefox/Safari variants).
-- [ ] **Multi-language Tooltip Translation** - Translate native extension tooltips and title fields to major international locales.
+- [ ] 
