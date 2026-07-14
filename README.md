@@ -7,6 +7,11 @@ A lightweight, high-performance Chrome extension that streamlines your YouTube e
 
 ---
 
+### 📊 Project Status & Jira Roadmap
+Track active tasks, completed features, and future plans in the structured status dashboard: **[PROJECT_STATUS.md](PROJECT_STATUS.md)**
+
+---
+
 ## Features
 
 - **⚡ 1-Click Adding**: Adds a clean "Add to Watch Later" button directly next to the 3-dots menu on video cards. Works on the homepage, subscription feeds, and search pages.
