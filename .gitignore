@@ -1,3 +1,5 @@
+# Ignore all zips except the release package
 *.zip
+!WatchLaterExtension.zip
 .DS_Store
 Thumbs.db

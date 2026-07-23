@@ -11,9 +11,9 @@ This file contains the structured project status, completed milestones, and futu
   "shortDescription": "1-click adding/removing of YouTube videos to/from the Watch Later playlist.",
   "repository": "https://github.com/ogadassi/WatchLater",
   "chromeWebStoreId": "cipblemimaiffjenjhnplnegbembhgmc",
-  "latestVersion": "1.1",
+  "latestVersion": "1.2",
   "status": "Production-Active",
-  "lastUpdated": "2026-07-14"
+  "lastUpdated": "2026-07-18"
 }
 ```
 
@@ -30,6 +30,7 @@ This file contains the structured project status, completed milestones, and futu
 - [x] **Responsive Styling** - Synchronizes button styling and hover transitions natively with YouTube's native light and dark mode colors.
 - [x] **Web Store Assets** - Design and bundle of custom forest-green icons in 16x16, 48x48, and 128x128 sizes.
 - [x] **CWS Publication** - Successfully prepared zip packages and submitted version 1.1 to the Chrome Web Store.
+- [x] **Dynamic Check & Inline Removal (v1.2)** - Checks whether videos are already in the Watch Later playlist on page load. Renders a green checkmark that turns into a red X on hover for instant 1-click removal.
 
 ---
 

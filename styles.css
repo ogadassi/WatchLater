@@ -114,3 +114,44 @@ yt-lockup-view-model.ytLockupViewModelWrapper:not(ytd-rich-item-renderer yt-lock
   opacity: 0.7;
   pointer-events: auto;
 }
+
+/* --- Added/Checked & Hover Removal States --- */
+.wl-custom-add-btn svg.wl-icon-check,
+.wl-custom-add-btn svg.wl-icon-remove {
+  display: none;
+}
+
+.wl-custom-add-btn.wl-state-added svg.wl-icon-add {
+  display: none;
+}
+
+.wl-custom-add-btn.wl-state-added svg.wl-icon-check {
+  display: block;
+  fill: #2ecc71 !important; /* Green */
+}
+
+/* When hovered, show red X icon instead of green checkmark */
+.wl-custom-add-btn.wl-state-added:hover svg.wl-icon-check {
+  display: none !important;
+}
+
+.wl-custom-add-btn.wl-state-added:hover svg.wl-icon-remove {
+  display: block !important;
+  fill: #e74c3c !important; /* Red */
+}
+
+/* Temporary disabled state after removal until mouse leaves the card */
+.wl-custom-add-btn.wl-just-removed {
+  pointer-events: none !important;
+  opacity: 0.3 !important;
+}
+
+/* Hide native elements during programmatic actions to avoid flashing */
+ytd-add-to-playlist-renderer.wl-hide-dialog,
+tp-yt-paper-dialog.wl-hide-dialog,
+ytd-popup-container.wl-hide-popup {
+  opacity: 0 !important;
+  pointer-events: none !important;
+}
+
+
