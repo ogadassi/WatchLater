@@ -115,6 +115,13 @@ yt-lockup-view-model.ytLockupViewModelWrapper:not(ytd-rich-item-renderer yt-lock
   pointer-events: auto;
 }
 
+/* On the watch page, 3-dots is always visible — match that behavior */
+ytd-watch-flexy ytd-compact-video-renderer .wl-custom-add-btn,
+ytd-watch-flexy yt-lockup-view-model .wl-custom-add-btn {
+  opacity: 0.7 !important;
+  pointer-events: auto !important;
+}
+
 /* --- Added/Checked & Hover Removal States --- */
 .wl-custom-add-btn svg.wl-icon-check,
 .wl-custom-add-btn svg.wl-icon-remove {
