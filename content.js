@@ -1,4 +1,4 @@
-console.log('[Watch Later Ext] INITIALIZED version 1.2 (Direct DOM checks)');
+console.log('[Watch Later Ext] INITIALIZED version 1.5 (Direct DOM checks)');
 let watchLaterIds = new Set();
 let lastInteractedVideoId = null;
 
@@ -136,9 +136,13 @@ async function removeFromWatchLaterViaApi(videoId) {
       return false;
     }
 
-    const apiKey = cfg.apiKey || 'AIzaSyAO_FJ2SlqU8Q4STEHLGCilw_Y9_11qcW8';
-    const context = cfg.context || { client: { clientName: 'WEB', clientVersion: '2.20260722.01.00' } };
-    const clientVersion = context.client?.clientVersion || '2.20260722.01.00';
+    const apiKey = cfg.apiKey;
+    if (!apiKey) {
+      console.error('[Watch Later Ext] Could not read API key from YouTube page config. Aborting.');
+      return false;
+    }
+    const context = cfg.context || { client: { clientName: 'WEB', clientVersion: 'unknown' } };
+    const clientVersion = context.client?.clientVersion || 'unknown';
 
     console.log(`[Watch Later Ext] Calling edit_playlist API. apiKey: ${apiKey.slice(0,8)}..., clientVersion: ${clientVersion}`);
 
@@ -448,8 +452,10 @@ function clickRemoveOption() {
 }
 
 function injectAddButtons() {
-  // Don't inject on the Watch Later playlist page
-  if (window.location.href.includes('list=WL')) return;
+  // Don't inject on the dedicated Watch Later playlist page (/playlist?list=WL)
+  // but DO inject on watch pages even if list=WL is in the URL
+  const url = new URL(window.location.href);
+  if (url.pathname === '/playlist' && url.searchParams.get('list') === 'WL') return;
 
   const videos = document.querySelectorAll(
     'ytd-rich-item-renderer, ytd-video-renderer, ytd-compact-video-renderer, ytd-grid-video-renderer, yt-lockup-view-model'
