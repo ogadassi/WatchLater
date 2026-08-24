@@ -15,6 +15,7 @@ Track active tasks, completed features, and future plans in the structured statu
 ## Features
 
 - **⚡ 1-Click Adding**: Adds a clean "Add to Watch Later" button directly next to the 3-dots menu on video cards. Works on the homepage, subscription feeds, and search pages.
+- **🎬 Media Controls Integration**: Adds the same exact Watch Later button right inside the YouTube video player's bottom control bar, letting you 1-click save or remove the video currently playing.
 - **🗑️ 1-Click Removing**: Adds a dedicated trash can button right next to playlist items on the Watch Later page, enabling fast, painless playlist cleanups.
 - **👁️ Native Hover Behavior**: On compact sidebar/suggested video lists, the add button remains hidden and seamlessly fades in on hover alongside YouTube's native controls.
 - **🌐 Language Independent**: Uses SVG path matching rather than English text strings to guarantee full compatibility with localized YouTube interfaces (e.g. English, Hebrew, etc.).

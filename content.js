@@ -144,7 +144,7 @@ async function removeFromWatchLaterViaApi(videoId) {
     const context = cfg.context || { client: { clientName: 'WEB', clientVersion: 'unknown' } };
     const clientVersion = context.client?.clientVersion || 'unknown';
 
-    console.log(`[Watch Later Ext] Calling edit_playlist API. apiKey: ${apiKey.slice(0,8)}..., clientVersion: ${clientVersion}`);
+    console.log(`[Watch Later Ext] Calling edit_playlist API (REMOVE). apiKey: ${apiKey.slice(0,8)}..., clientVersion: ${clientVersion}`);
 
     const response = await fetch(
       `https://www.youtube.com/youtubei/v1/browse/edit_playlist?key=${apiKey}&prettyPrint=false`,
@@ -176,6 +176,61 @@ async function removeFromWatchLaterViaApi(videoId) {
     }
   } catch (e) {
     console.error('[Watch Later Ext] Error calling removal API:', e);
+    return false;
+  }
+}
+
+async function addToWatchLaterViaApi(videoId) {
+  if (!videoId) return false;
+  try {
+    const cfg = getPageConfig();
+    const sapisidHash = await getSapisidHash();
+
+    if (!sapisidHash) {
+      console.error('[Watch Later Ext] Could not compute SAPISIDHASH — user may not be logged in.');
+      return false;
+    }
+
+    const apiKey = cfg.apiKey;
+    if (!apiKey) {
+      console.error('[Watch Later Ext] Could not read API key from YouTube page config. Aborting.');
+      return false;
+    }
+    const context = cfg.context || { client: { clientName: 'WEB', clientVersion: 'unknown' } };
+    const clientVersion = context.client?.clientVersion || 'unknown';
+
+    console.log(`[Watch Later Ext] Calling edit_playlist API (ADD). apiKey: ${apiKey.slice(0,8)}..., clientVersion: ${clientVersion}`);
+
+    const response = await fetch(
+      `https://www.youtube.com/youtubei/v1/browse/edit_playlist?key=${apiKey}&prettyPrint=false`,
+      {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+          'Authorization': `SAPISIDHASH ${sapisidHash}`,
+          'X-Origin': 'https://www.youtube.com',
+          'X-Goog-AuthUser': '0',
+          'X-Youtube-Client-Name': '1',
+          'X-Youtube-Client-Version': clientVersion,
+        },
+        body: JSON.stringify({
+          playlistId: 'WL',
+          actions: [{ action: 'ACTION_ADD_VIDEO', addedVideoId: videoId }],
+          context: context
+        })
+      }
+    );
+
+    if (response.ok) {
+      console.log(`[Watch Later Ext] ✓ Added video "${videoId}" to Watch Later via API.`);
+      return true;
+    } else {
+      const txt = await response.text();
+      console.error(`[Watch Later Ext] API add failed (${response.status}):`, txt.slice(0, 300));
+      return false;
+    }
+  } catch (e) {
+    console.error('[Watch Later Ext] Error calling add API:', e);
     return false;
   }
 }
@@ -325,13 +380,50 @@ function getVideoId(videoEl) {
   return null;
 }
 
+function getCurrentPlayerVideoId(player) {
+  // 1. From ytd-watch-flexy / ytd-watch-grid attribute
+  const watchFlexy = document.querySelector('ytd-watch-flexy, ytd-watch-grid');
+  if (watchFlexy) {
+    const vId = watchFlexy.getAttribute('video-id');
+    if (vId) return vId;
+  }
+
+  // 2. From URL params if on /watch
+  const urlParams = new URLSearchParams(window.location.search);
+  const urlVid = urlParams.get('v');
+  if (urlVid) return urlVid;
+
+  // 3. From player title link if present
+  if (player) {
+    const titleLink = player.querySelector('a.ytp-title-link');
+    if (titleLink && titleLink.href) {
+      const match = titleLink.href.match(/[?&]v=([^&#]+)/);
+      if (match) return match[1];
+    }
+  }
+
+  // 4. From meta tag
+  const metaVid = document.querySelector('meta[itemprop="videoId"]');
+  if (metaVid && metaVid.content) return metaVid.content;
+
+  // 5. From shorts URL if /shorts/ID
+  if (window.location.pathname.startsWith('/shorts/')) {
+    const parts = window.location.pathname.split('/');
+    if (parts[2]) return parts[2];
+  }
+
+  return null;
+}
+
 function updateButtonState(btn, isSaved) {
   if (isSaved) {
     btn.classList.add('wl-state-added');
     btn.title = "Remove from Watch Later";
+    btn.setAttribute('aria-label', 'Remove from Watch Later');
   } else {
     btn.classList.remove('wl-state-added');
     btn.title = "Add to Watch Later";
+    btn.setAttribute('aria-label', 'Add to Watch Later');
   }
 }
 
@@ -339,6 +431,16 @@ function updateAllButtonsState() {
   const btns = document.querySelectorAll('.wl-custom-add-btn');
   btns.forEach(btn => {
     if (btn.classList.contains('wl-just-removed')) return;
+
+    if (btn.classList.contains('wl-player-btn')) {
+      const player = btn.closest('.html5-video-player, #movie_player');
+      const videoId = getCurrentPlayerVideoId(player);
+      if (videoId) {
+        const isSaved = watchLaterIds.has(videoId);
+        updateButtonState(btn, isSaved);
+      }
+      return;
+    }
 
     const videoEl = btn.closest(
       'ytd-rich-item-renderer, ytd-video-renderer, ytd-compact-video-renderer, ytd-grid-video-renderer, yt-lockup-view-model'
@@ -535,47 +637,151 @@ function injectAddButtons() {
         return;
       }
 
-      // --- ADD path: use native overlay / menu automation (async) ---
-      (async () => {
-        let status = 'failed';
-        const usedOverlay = clickNativeOverlayButton(videoEl, actionType);
-        if (usedOverlay) {
-          status = 'added';
-        } else {
-          let triggerBtn = videoEl.querySelector('.ytLockupMetadataViewModelMenuButton button-view-model button') ||
-                           videoEl.querySelector('.ytLockupMetadataViewModelMenuButton button') ||
-                           videoEl.querySelector('button[aria-haspopup="true"], button[aria-haspopup="menu"]') ||
-                           videoEl.querySelector('ytd-menu-renderer yt-icon-button#button button') ||
-                           videoEl.querySelector('ytd-menu-renderer button');
+      // --- ADD path: optimistic update + API with fallback to UI automation ---
+      updateButtonState(btn, true);
+      watchLaterIds.add(currentVideoId);
+      saveWatchLaterIdsToStorage();
+      updateAllButtonsState();
 
-          if (triggerBtn) {
-            const popupContainer = document.querySelector('ytd-popup-container');
-            if (popupContainer) {
-              popupContainer.style.opacity = '0';
-              popupContainer.style.pointerEvents = 'none';
-            }
-            triggerBtn.click();
-            status = await clickOption(actionType);
-            if (popupContainer) {
-              popupContainer.style.opacity = '';
-              popupContainer.style.pointerEvents = '';
+      addToWatchLaterViaApi(currentVideoId).then(async (success) => {
+        if (!success) {
+          console.warn('[Watch Later Ext] API add failed, attempting UI automation fallback...');
+          let status = 'failed';
+          const usedOverlay = clickNativeOverlayButton(videoEl, actionType);
+          if (usedOverlay) {
+            status = 'added';
+          } else {
+            let triggerBtn = videoEl.querySelector('.ytLockupMetadataViewModelMenuButton button-view-model button') ||
+                             videoEl.querySelector('.ytLockupMetadataViewModelMenuButton button') ||
+                             videoEl.querySelector('button[aria-haspopup="true"], button[aria-haspopup="menu"]') ||
+                             videoEl.querySelector('ytd-menu-renderer yt-icon-button#button button') ||
+                             videoEl.querySelector('ytd-menu-renderer button');
+
+            if (triggerBtn) {
+              const popupContainer = document.querySelector('ytd-popup-container');
+              if (popupContainer) {
+                popupContainer.style.opacity = '0';
+                popupContainer.style.pointerEvents = 'none';
+              }
+              triggerBtn.click();
+              status = await clickOption(actionType);
+              if (popupContainer) {
+                popupContainer.style.opacity = '';
+                popupContainer.style.pointerEvents = '';
+              }
             }
           }
-        }
 
-        if (status === 'failed') {
-          document.body.click();
-        } else if (status === 'added' || status === 'already_there') {
-          if (currentVideoId) {
-            watchLaterIds.add(currentVideoId);
+          if (status === 'failed') {
+            document.body.click();
+            console.warn('[Watch Later Ext] Fallback UI add failed, reverting state.');
+            updateButtonState(btn, false);
+            watchLaterIds.delete(currentVideoId);
             saveWatchLaterIdsToStorage();
+            updateAllButtonsState();
           }
-          updateButtonState(btn, true);
         }
-      })();
+      });
     });
 
     menuContainer.appendChild(btn);
+  });
+}
+
+function injectPlayerButton() {
+  const rightControlsList = document.querySelectorAll(
+    '.html5-video-player .ytp-right-controls, #movie_player .ytp-right-controls'
+  );
+
+  rightControlsList.forEach(rightControls => {
+    const player = rightControls.closest('.html5-video-player, #movie_player');
+    const currentVideoId = getCurrentPlayerVideoId(player);
+
+    let btn = rightControls.querySelector('.wl-player-btn');
+    if (!btn) {
+      btn = document.createElement('button');
+      btn.className = 'ytp-button wl-player-btn wl-custom-add-btn';
+      btn.setAttribute('aria-label', 'Add to Watch Later');
+      btn.innerHTML = `
+        <!-- Clock/Plus icon (Default) -->
+        <svg class="wl-icon-add" viewBox="0 0 24 24" preserveAspectRatio="xMidYMid meet" focusable="false">
+           <g><path d="M14.97 16.95 10 13.87V7h2v5.76l4.03 2.49-1.06 1.7zM12 3c-4.96 0-9 4.04-9 9s4.04 9 9 9 9-4.04 9-9-4.04-9-9-9m0-1c5.52 0 10 4.48 10 10s-4.48 10-10 10S2 17.52 2 12 6.48 2 12 2z"></path></g>
+        </svg>
+        <!-- Green Checkmark icon -->
+        <svg class="wl-icon-check" viewBox="0 0 24 24">
+           <g><path d="M9 16.17L4.83 12l-1.42 1.41L9 19 21 7l-1.41-1.41z"></path></g>
+        </svg>
+        <!-- Red X icon -->
+        <svg class="wl-icon-remove" viewBox="0 0 24 24">
+           <g><path d="M19 6.41L17.59 5 12 10.59 6.41 5 5 6.41 10.59 12 5 17.59 6.41 19 12 13.41 17.59 19 19 17.59 13.41 12z"></path></g>
+        </svg>
+      `;
+
+      btn.addEventListener('click', (e) => {
+        e.preventDefault();
+        e.stopPropagation();
+
+        const curPlayer = btn.closest('.html5-video-player, #movie_player');
+        const videoId = getCurrentPlayerVideoId(curPlayer);
+        if (!videoId) {
+          console.warn('[Watch Later Ext] Could not determine video ID for player button click.');
+          return;
+        }
+
+        const isAdded = btn.classList.contains('wl-state-added');
+        const actionType = isAdded ? 'remove' : 'add';
+
+        if (actionType === 'remove') {
+          // Optimistic remove
+          updateButtonState(btn, false);
+          btn.classList.add('wl-just-removed');
+          watchLaterIds.delete(videoId);
+          saveWatchLaterIdsToStorage();
+          updateAllButtonsState();
+
+          btn.addEventListener('mouseleave', function reset() {
+            btn.classList.remove('wl-just-removed');
+            btn.removeEventListener('mouseleave', reset);
+          });
+          setTimeout(() => btn.classList.remove('wl-just-removed'), 1000);
+
+          removeFromWatchLaterViaApi(videoId).then(success => {
+            if (!success) {
+              console.warn('[Watch Later Ext] API remove failed for player button, reverting state.');
+              updateButtonState(btn, true);
+              btn.classList.remove('wl-just-removed');
+              watchLaterIds.add(videoId);
+              saveWatchLaterIdsToStorage();
+              updateAllButtonsState();
+            }
+          });
+        } else {
+          // Optimistic add
+          updateButtonState(btn, true);
+          watchLaterIds.add(videoId);
+          saveWatchLaterIdsToStorage();
+          updateAllButtonsState();
+
+          addToWatchLaterViaApi(videoId).then(success => {
+            if (!success) {
+              console.warn('[Watch Later Ext] API add failed for player button, reverting state.');
+              updateButtonState(btn, false);
+              watchLaterIds.delete(videoId);
+              saveWatchLaterIdsToStorage();
+              updateAllButtonsState();
+            }
+          });
+        }
+      });
+
+      // Insert at the beginning of right controls (before CC / Settings)
+      rightControls.insertBefore(btn, rightControls.firstChild);
+    }
+
+    if (currentVideoId) {
+      const isSaved = watchLaterIds.has(currentVideoId);
+      updateButtonState(btn, isSaved);
+    }
   });
 }
 
@@ -979,6 +1185,7 @@ document.body.addEventListener('click', (e) => {
 const observer = new MutationObserver(() => {
   injectButtons();
   injectAddButtons();
+  injectPlayerButton();
   updateAllButtonsState();
 });
 
@@ -988,6 +1195,7 @@ observer.observe(document.body, { childList: true, subtree: true });
 document.addEventListener('yt-navigate-finish', () => {
   injectButtons();
   injectAddButtons();
+  injectPlayerButton();
   updateAllButtonsState();
 });
 
@@ -995,3 +1203,4 @@ document.addEventListener('yt-navigate-finish', () => {
 initWatchLaterCache();
 injectButtons();
 injectAddButtons();
+injectPlayerButton();

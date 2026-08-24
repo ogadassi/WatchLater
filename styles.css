@@ -161,4 +161,79 @@ ytd-popup-container.wl-hide-popup {
   pointer-events: none !important;
 }
 
+/* --- Media Controls Player Button --- */
+.ytp-button.wl-player-btn {
+  display: inline-flex !important;
+  align-items: center !important;
+  justify-content: center !important;
+  width: 46px !important;
+  height: 100% !important;
+  padding: 0 !important;
+  margin: 0 !important;
+  border: none !important;
+  border-radius: 0 !important;
+  background: transparent !important;
+  cursor: pointer !important;
+  opacity: 0.9 !important;
+  transition: opacity 0.1s ease, transform 0.1s ease !important;
+  vertical-align: top !important;
+  box-sizing: border-box !important;
+  pointer-events: auto !important;
+}
+
+.ytp-button.wl-player-btn:hover {
+  opacity: 1 !important;
+  background-color: transparent !important;
+}
+
+.ytp-button.wl-player-btn:active {
+  transform: scale(0.9) !important;
+}
+
+.ytp-button.wl-player-btn svg {
+  width: 25px !important;
+  height: 25px !important;
+  fill: #fff !important;
+  pointer-events: none !important;
+}
+
+/* Thicker strokes to match native YouTube media controls icon line-weights */
+.ytp-button.wl-player-btn svg.wl-icon-add path {
+  stroke: #fff !important;
+  stroke-width: 0.8px !important;
+  stroke-linejoin: round !important;
+  stroke-linecap: round !important;
+}
+
+/* Added State in player controls */
+.ytp-button.wl-player-btn.wl-state-added svg.wl-icon-check {
+  display: block !important;
+  fill: #2ecc71 !important;
+}
+
+.ytp-button.wl-player-btn.wl-state-added svg.wl-icon-check path {
+  stroke: #2ecc71 !important;
+  stroke-width: 1.3px !important;
+  stroke-linejoin: round !important;
+  stroke-linecap: round !important;
+}
+
+.ytp-button.wl-player-btn.wl-state-added:hover svg.wl-icon-check {
+  display: none !important;
+}
+
+.ytp-button.wl-player-btn.wl-state-added:hover svg.wl-icon-remove {
+  display: block !important;
+  fill: #e74c3c !important;
+}
+
+.ytp-button.wl-player-btn.wl-state-added:hover svg.wl-icon-remove path {
+  stroke: #e74c3c !important;
+  stroke-width: 1.3px !important;
+  stroke-linejoin: round !important;
+  stroke-linecap: round !important;
+}
+
+
+
 
