@@ -1,4 +1,4 @@
-console.log('[Watch Later Ext] INITIALIZED version 1.5 (Direct DOM checks)');
+console.log('[Watch Later Ext] INITIALIZED version 1.6 (Direct DOM checks)');
 let watchLaterIds = new Set();
 let lastInteractedVideoId = null;
 
