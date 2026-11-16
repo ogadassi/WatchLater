@@ -60,8 +60,28 @@ YouTube lazy-loads its interactive elements and recycles DOM elements as you scr
 ├── styles.css      # Custom styles matching YouTube's design system
 ├── icon16.png      # Extension icon (16x16)
 ├── icon48.png      # Extension icon (48x48)
-└── icon128.png     # Extension icon (128x128)
+├── icon128.png     # Extension icon (128x128)
+└── scripts/cws.mjs # Chrome Web Store build & publish script
 ```
+
+---
+
+## Publishing to the Chrome Web Store
+
+`scripts/cws.mjs` builds `WatchLaterExtension.zip` and talks to the Chrome Web Store API (v2) with a Google Cloud service account. No npm packages needed.
+
+```bash
+node scripts/cws.mjs status    # what's live / in review
+node scripts/cws.mjs release   # build, upload, submit for review
+```
+
+It reads `cws.config.json` (git-ignored) in the project folder:
+
+```json
+{ "publisherId": "<from the developer dashboard>", "keyFile": "C:/path/outside/repo/key.json" }
+```
+
+Bump the version in `manifest.json` before each upload; the store rejects a repeated version.
 
 ---
 

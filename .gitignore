@@ -3,3 +3,8 @@
 !WatchLaterExtension.zip
 .DS_Store
 Thumbs.db
+
+# Chrome Web Store publishing: local settings and keys never go in git
+cws.config.json
+*service-account*.json
+*cws-key*.json
