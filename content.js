@@ -1,4 +1,4 @@
-console.log('[Watch Later Ext] INITIALIZED version 1.6 (Direct DOM checks)');
+console.log('[Watch Later Ext] INITIALIZED version 1.7 (native WL dedupe)');
 let watchLaterIds = new Set();
 let lastInteractedVideoId = null;
 
@@ -553,6 +553,27 @@ function clickRemoveOption() {
   });
 }
 
+// Does YouTube already offer its own Watch Later button on this card?
+// - Channel pages (all tabs) show a native Watch Later button on thumbnail hover.
+// - Anywhere else, the native overlay may appear later (on hover), so we also check the live DOM.
+function hasNativeWatchLater(card) {
+  const browse = card.closest('ytd-browse');
+  if (browse && browse.getAttribute('page-subtype') === 'channels') return true;
+
+  if (card.querySelector('yt-thumbnail-hover-overlay-toggle-actions-view-model')) return true;
+
+  const legacy = card.querySelectorAll('ytd-thumbnail-overlay-toggle-button-renderer, yt-thumbnail-overlay-toggle-button-renderer');
+  for (const el of legacy) {
+    const label = (el.getAttribute('aria-label') || '').toLowerCase();
+    if (label.includes('watch later') || label.includes('צפייה מאוחרת') || label.includes('לצפייה מאוחרת')) return true;
+  }
+  return false;
+}
+
+// Cards where we saw a native Watch Later button -> the video ID it was for.
+// Kept off the DOM so marking a card never triggers YouTube's re-rendering or our observer.
+const nativeWatchLaterCards = new WeakMap();
+
 function injectAddButtons() {
   // Don't inject on the dedicated Watch Later playlist page (/playlist?list=WL)
   // but DO inject on watch pages even if list=WL is in the URL
@@ -562,14 +583,32 @@ function injectAddButtons() {
   const videos = document.querySelectorAll(
     'ytd-rich-item-renderer, ytd-video-renderer, ytd-compact-video-renderer, ytd-grid-video-renderer, yt-lockup-view-model'
   );
-  
+
   videos.forEach(video => {
-    if (video.tagName.toLowerCase() === 'yt-lockup-view-model' && 
+    if (video.tagName.toLowerCase() === 'yt-lockup-view-model' &&
         video.parentElement.closest('ytd-rich-item-renderer, ytd-video-renderer, ytd-compact-video-renderer, ytd-grid-video-renderer')) {
       return;
     }
 
-    if (video.querySelector('.wl-custom-add-btn')) return;
+    const existingBtn = video.querySelector('.wl-custom-add-btn');
+
+    // Skip cards where YouTube provides its own Watch Later button.
+    // Remember it per video, so ours doesn't come back when the hover overlay goes away.
+    // (Cards are recycled for other videos, hence the video ID check.)
+    if (hasNativeWatchLater(video)) {
+      nativeWatchLaterCards.set(video, getVideoId(video));
+      if (existingBtn) existingBtn.remove();
+      return;
+    }
+    if (nativeWatchLaterCards.has(video)) {
+      if (nativeWatchLaterCards.get(video) === getVideoId(video)) {
+        if (existingBtn) existingBtn.remove();
+        return;
+      }
+      nativeWatchLaterCards.delete(video);
+    }
+
+    if (existingBtn) return;
 
     let menuContainer = video.querySelector('.ytLockupMetadataViewModelMenuButton') ||
                         video.querySelector('[class*="MenuButton"]') ||

@@ -100,6 +100,20 @@ html[dark] .wl-custom-add-btn svg {
   transform: scale(0.9);
 }
 
+/* Grid cards (home, subscriptions, shelves): place our button beside the 3-dots
+   instead of under it. Stacked, it overflowed cards with short titles. */
+yt-lockup-metadata-view-model.ytLockupMetadataViewModelVertical .ytLockupMetadataViewModelMenuButton:has(> .wl-custom-add-btn) {
+  display: flex !important;
+  flex-direction: row-reverse;
+  align-items: flex-start;
+  width: auto !important;
+}
+
+/* Keep the title text clear of both buttons (YouTube reserves 24px for the 3-dots alone) */
+yt-lockup-metadata-view-model.ytLockupMetadataViewModelVertical:has(.ytLockupMetadataViewModelMenuButton > .wl-custom-add-btn) .ytLockupMetadataViewModelTitle {
+  padding-inline-end: 64px !important;
+}
+
 /* On sidebar/compact videos, only show on hover (matches native 3-dots behavior) */
 ytd-compact-video-renderer .wl-custom-add-btn,
 ytd-video-renderer .wl-custom-add-btn,

@@ -11,9 +11,9 @@ This file contains the structured project status, completed milestones, and futu
   "shortDescription": "1-click adding/removing of YouTube videos to/from the Watch Later playlist.",
   "repository": "https://github.com/ogadassi/WatchLater",
   "chromeWebStoreId": "cipblemimaiffjenjhnplnegbembhgmc",
-  "latestVersion": "1.6",
+  "latestVersion": "1.7",
   "status": "Production-Active",
-  "lastUpdated": "2026-08-25"
+  "lastUpdated": "2026-11-16"
 }
 ```
 
@@ -32,6 +32,7 @@ This file contains the structured project status, completed milestones, and futu
 - [x] **CWS Publication** - Successfully prepared zip packages and submitted version 1.1 to the Chrome Web Store.
 - [x] **Dynamic Check & Inline Removal (v1.2)** - Checks whether videos are already in the Watch Later playlist on page load. Renders a green checkmark that turns into a red X on hover for instant 1-click removal.
 - [x] **Media Controls Bar Integration (v1.6)** - Injects our exact Watch Later action button into YouTube's player control bar (`.ytp-right-controls`), with real-time video state sync, instant API add/remove, bolder icons, and seamless dark/light theme integration.
+- [x] **Card Layout & Native Dedupe (v1.7)** - On grid cards (home, subscriptions, shelves) the add button sits beside the 3-dots instead of under it, so it stays inside cards with short titles. Skips injection on channel pages and on any card where YouTube renders its own Watch Later button.
 
 ---
 
